@@ -19,8 +19,10 @@ contract Ballot{
         6: Web Master
         7: Training Manager
     */
+    event voterAdded(address indexed voter_address,bytes32 indexed voter_name);
     Proposal[] private proposals;
     struct Proposal {
+        address nominantAddress;
         bytes32 name;
         string image;
         uint8 organizationalUnit;
@@ -34,22 +36,44 @@ contract Ballot{
         address voterAddress;
         bool canVote;
     }
-    Voter[] public votersList;
-    mapping (address => Voter) public voters;
+    mapping (address => Voter) public voter;
+    Voter[] public voters;
     mapping (address => bool) public isModerator; // determines if a person can actually add voters
     constructor(Proposal[] memory _proposals) {
         isModerator[msg.sender] = true;
         proposals = _proposals;
     }
-    function giveRightToVote(address voterAddress, bytes32 _name) public {
+    function giveRightToVote(address voterAddress, bytes32 _name) external {
         require(
-            isModerator(msg.sender),
-            "Only moderators can add voters"
+            isModerator[msg.sender],
+            "Only moderators can give right to voters!"
         );
         require(
-            !voters[voterAddress].voted,
-            "The voter has already voted"
+            !voter[voterAddress].canVote,
+            "The voter is already registered!"
         );
-
+        voter[voterAddress].canVote = true;
+        voter[voterAddress].name = _name;
+        voters.push(voter[voterAddress]);
+        emit voterAdded(voterAddress,_name);
     }
+    function addProposal(bytes32 name,
+        string memory image,
+        uint8 organizationalUnit,
+        uint8 position) external {
+            require(
+                isModerator[msg.sender],
+                "Only moderators can add proposals"
+            );
+            Proposal memory _proposal = Proposal(
+                msg.sender,
+                name,
+                image,
+                organizationalUnit,
+                position,
+                0
+            );
+            proposals.push(_proposal);
+    }
+    function vote()
 }
