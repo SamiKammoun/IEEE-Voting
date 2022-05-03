@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
-
+import NominantCard from "./components/Card";
+import HorizontalLinearStepper from "./components/Stepper";
+import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box';
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <HorizontalLinearStepper>
+      <Box 
+        sx={{
+          display: 'flex',
+          '& > :not(style)': {
+            m: 1,
+            width: 128,
+            height: 128,
+          },
+        }}>
+        <Grid spacing={2} >
+          <NominantCard/>
+          <NominantCard/>
+          <NominantCard/>
+        </Grid>
+      </Box>
+    </HorizontalLinearStepper>
+    </>
+    
   );
 }
 
