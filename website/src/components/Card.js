@@ -1,14 +1,13 @@
 import '../card.scss';
 import Avatar from '@mui/material/Avatar';
-import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
 const NominantCard = (props) => {
   return(
-    
-      <Paper elevation={3}>
-        <h1>title</h1>
-        <Avatar sx={{width:200,height:200}} src={props.img}>{props.title}</Avatar>
-      </Paper>
+    <Grid item xs={12} sm={6} md={3} >
+        <h1>{props.name}</h1>
+        <Avatar sx={{width:200,height:200,border:5,borderColor:'green'}} src={props.img}></Avatar>
+    </Grid>
+      
     
   )
 }

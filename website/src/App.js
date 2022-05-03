@@ -1,26 +1,20 @@
 import NominantCard from "./components/Card";
 import HorizontalLinearStepper from "./components/Stepper";
 import Grid from '@mui/material/Grid'
-import Box from '@mui/material/Box';
+import { Container } from "@mui/material";
+import Connect from "./Connect";
 function App() {
   return (
     <>
+    <Connect />
     <HorizontalLinearStepper>
-      <Box 
-        sx={{
-          display: 'flex',
-          '& > :not(style)': {
-            m: 1,
-            width: 128,
-            height: 128,
-          },
-        }}>
-        <Grid spacing={2} >
+      <Container>
+        <Grid container spacing={{xs:2, md:3}} >
           <NominantCard/>
           <NominantCard/>
           <NominantCard/>
         </Grid>
-      </Box>
+      </Container>
     </HorizontalLinearStepper>
     </>
     

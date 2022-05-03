@@ -6,108 +6,100 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+const OrganizationalUnits = ['SB', 'CS', 'GRSS','WIE','RAS'];
+const Positions = [
+  'Chair','Vice Chair','Secretary','Treasurer',
+  'Community Manager','HR Manager','Web Master',
+  'Training Manager']
 
 export default function HorizontalLinearStepper(props) {
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set());
+  const [activeOU, setActiveOU] = React.useState(0);
+  const [activePO, setActivePO] = React.useState(0);
 
-  const isStepOptional = (step) => {
-    return step === 1;
-  };
-
-  const isStepSkipped = (step) => {
-    return skipped.has(step);
+  const handleBack = () => {
+    if(activePO === 0){
+      setActivePO(Positions.length - 1)
+      setActiveOU((prevActiveOU) => prevActiveOU -1)
+    }
+    else{
+      setActivePO((prevActivePO) => prevActivePO -1)
+    }
   };
 
   const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
+    if(activeOU === OrganizationalUnits.length -1 
+      && activePO === Positions.length -1){
+        setActiveOU((prevActiveOU) => prevActiveOU +1)
+        setActivePO((prevActivePO) => prevActivePO +1)
+        return
+      }
+    if(activePO === Positions.length - 1){
+      setActivePO(0);
+      setActiveOU((prevActiveOU) => prevActiveOU +1)
     }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSkip = () => {
-    if (!isStepOptional(activeStep)) {
-      // You probably want to guard against something like this,
-      // it should never occur unless someone's actively trying to break something.
-      throw new Error("You can't skip a step that isn't optional.");
+    else{
+      setActivePO((prevActivePO) => prevActivePO +1)
     }
-
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped((prevSkipped) => {
-      const newSkipped = new Set(prevSkipped.values());
-      newSkipped.add(activeStep);
-      return newSkipped;
-    });
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  const submit = () => {
+
+  }
+  const reset = () => {
+
+  }
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
-          if (isStepOptional(index)) {
-            labelProps.optional = (
-              <Typography variant="caption">Optional</Typography>
-            );
-          }
-          if (isStepSkipped(index)) {
-            stepProps.completed = false;
-          }
+      <Stepper activeStep={activeOU}>
+        {OrganizationalUnits.map((label, index) => {
           return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
+            <Step key={label} >
+              <StepLabel >{label}</StepLabel>
             </Step>
           );
         })}
       </Stepper>
-      {activeStep === steps.length ? (
+      <Stepper activeStep={activePO}>
+        {Positions.map((label, index) => {
+          return (
+            <Step key={label} >
+              <StepLabel >{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      {activeOU === OrganizationalUnits.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
             All steps completed - you&apos;re finished
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
+            <Button variant='contained' onClick={submit}>Submit</Button>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+            <Box sx={{ flex: '1 1 auto' }} />
+            <Button  variant='contained' onClick={reset}>Reset</Button>
           </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
           {props.children}
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Button
+              variant='contained'
               color="inherit"
-              disabled={activeStep === 0}
+              disabled={activeOU === 0 && activePO === 0}
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
               Back
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                Skip
+              <Button variant='contained' color="inherit" onClick={handleNext} sx={{ mr: 1 }}>
+                Next
               </Button>
-            )}
-
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-            </Button>
           </Box>
         </React.Fragment>
       )}
