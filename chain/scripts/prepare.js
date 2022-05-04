@@ -1,7 +1,7 @@
 async function main(){
   console.log("------ deploy to a **new** localhost ====");
   Ballot = await ethers.getContractFactory("Ballot");
-  contract = await Ballot.deploy(600);//60s before vote ends
+  contract = await Ballot.deploy(60);//60s before vote ends
   console.log("contract address: ",contract.address);
   [moderator,account1,account2,account3,account4] = await ethers.getSigners();
   const characters = '0123456789ABCDEF'
@@ -11,6 +11,7 @@ async function main(){
   const OU = []
   const PO = []
   const addresses = []
+  await contract.giveRightToVote(moderator.address,"Sami")
   for(let organizationalUnit=0;organizationalUnit<5;organizationalUnit++){
     for(let position=0;position<8;position++){
       for(let proposal=0;proposal<4;proposal++){

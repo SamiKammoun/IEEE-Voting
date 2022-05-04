@@ -5,6 +5,10 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { Container } from '@mui/material';
+import { Grid } from '@mui/material';
+import { Avatar } from '@mui/material';
+import { Stack } from '@mui/material';
 import { useState,useEffect } from 'react';
 import { useEthereumProvider } from '../EthereumContext';
 import { useEthereumAccount } from '../EthereumContext';
@@ -346,8 +350,10 @@ export default function HorizontalLinearStepper(props) {
   const [activeNominant,setActiveNominant] = useState("")
   const [activeOU, setActiveOU] = useState(0);
   const [activePO, setActivePO] = useState(0);
+  const [allProposals,setAllProposals] = useState([])
   const [proposals,setProposals] = useState([]);
-  const chosenNominants = []
+  const [skipped,setSkipped] = useState(true)
+  const [chosenNominants,setChosenNominants] = useState([])
   const provider = useEthereumProvider()
   const [signer,setSigner] = useState()
   const [contract,setContract] = useState()
@@ -362,26 +368,35 @@ export default function HorizontalLinearStepper(props) {
       }
   },[provider])
   const addNominant= (nominantAddress)=> {
-    chosenNominants.push(nominantAddress)
+    const _chosenNominants = chosenNominants;
+    _chosenNominants.push(nominantAddress)
   }
-  const getProposals = async (OU,PO) => {
+  const fetchProposals = async () => {
     const data = await contract.getProposals()
     let _proposals = []
     for(let i=0;i<data.length;i++){
       let _proposal = await contract.proposalOf(data[i])
       _proposals.push(_proposal)
     }
-    _proposals = _proposals.filter((proposal) => proposal.organizationalUnit == OU && proposal.position == PO)
-    console.log(_proposals)
-    setProposals(_proposals)
+    setAllProposals(_proposals)
+  }
+  const getProposals = async (OU,PO) => {
+    let tempProposals = allProposals.filter((proposal) => proposal.organizationalUnit == OU && proposal.position == PO)
+    console.log(tempProposals)
+    setProposals(tempProposals)
 }
   useEffect(() => {
+    fetchProposals()
     getProposals(activeOU,activePO)
     console.log(proposals)
-  }, [activeOU,activePO,contract])
+    console.log(chosenNominants)
+  }, [activeOU,activePO,contract,allProposals])
   
   const handleBack = () => {
     setActiveNominant("")
+    if(!skipped){
+      chosenNominants.pop()
+    }
     if(activePO === 0){
       setActivePO(Positions.length - 1)
       setActiveOU((prevActiveOU) => prevActiveOU -1)
@@ -391,7 +406,16 @@ export default function HorizontalLinearStepper(props) {
     }
   };
   const handleNext = () => {
-    setActiveNominant("")
+    if(activeNominant!=""){
+      setSkipped(false)
+    }
+    else{
+      setSkipped(true)
+    }
+    if(activeNominant!=""){
+      addNominant(activeNominant)
+      setActiveNominant("")
+    }
     if(activeOU === OrganizationalUnits.length -1 
       && activePO === Positions.length -1){
         setActiveOU((prevActiveOU) => prevActiveOU +1)
@@ -406,11 +430,14 @@ export default function HorizontalLinearStepper(props) {
       setActivePO((prevActivePO) => prevActivePO +1)
     }
   };
-  const submit = () => {
-
+  const submit = async () => {
+    console.log("submitting",chosenNominants)
+    await contract.vote(chosenNominants)
   }
   const reset = () => {
-
+    setActivePO(0)
+    setActiveOU(0)
+    chosenNominants = []
   }
   return (
     <Box sx={{ width: '100%' }}>
@@ -448,7 +475,26 @@ export default function HorizontalLinearStepper(props) {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Cards proposals={proposals} activeNominant={activeNominant}/>
+          <Container>
+            <Grid container spacing={{xs:2, md:3}} >
+                {proposals.map((proposal) => {
+                    return(
+                      <Grid item xs={12} sm={6} md={3} >
+                        <Stack alignItems="center" >
+                          <h1 style={{margin:20}}>{proposal.name}</h1>
+                          {
+                            proposal.nominantAddress == activeNominant  ? 
+                            <Avatar sx={{width:200,height:200,border:5,marginTop:2,borderColor:"green"}}  src={proposal.image}></Avatar>
+                            :<Avatar sx={{width:200,height:200,border:5,marginTop:2}}  src={proposal.image}></Avatar>
+                          }
+                          <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
+                        </Stack> 
+                      </Grid>
+                    )
+                
+                })}
+            </Grid>  
+        </Container>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Button
               variant='contained'
