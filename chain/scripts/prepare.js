@@ -29,6 +29,13 @@ async function main(){
 
     }
   }
+  const data = await contract.getProposals()
+  const _proposals = []
+  for(let i=0;i<data.length;i++){
+    let _proposal = await contract.proposalOf(data[i])
+    _proposals.push(_proposal)
+  }
+  console.log(_proposals)
 }
 main().catch((error) => {
   console.error(error)
