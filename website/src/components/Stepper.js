@@ -5,50 +5,46 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
-const OrganizationalUnits = ['SB', 'CS', 'GRSS','WIE','RAS'];
-const Positions = [
-  'Chair','Vice Chair','Secretary','Treasurer',
-  'Community Manager','HR Manager','Web Master',
-  'Training Manager']
+import { useState } from 'react';
 
 export default function HorizontalLinearStepper(props) {
-  const [activeOU, setActiveOU] = React.useState(0);
-  const [activePO, setActivePO] = React.useState(0);
-
-  const handleBack = () => {
-    if(activePO === 0){
-      setActivePO(Positions.length - 1)
-      setActiveOU((prevActiveOU) => prevActiveOU -1)
-    }
-    else{
-      setActivePO((prevActivePO) => prevActivePO -1)
-    }
-  };
-
-  const handleNext = () => {
-    if(activeOU === OrganizationalUnits.length -1 
-      && activePO === Positions.length -1){
-        setActiveOU((prevActiveOU) => prevActiveOU +1)
-        setActivePO((prevActivePO) => prevActivePO +1)
-        return
+  const OrganizationalUnits = ['SB', 'CS', 'GRSS','WIE','RAS'];
+  const Positions = [
+    'Chair','Vice Chair','Secretary','Treasurer',
+    'Community Manager','HR Manager','Web Master',
+    'Training Manager']
+    const [activeOU, setActiveOU] = useState(0);
+    const [activePO, setActivePO] = useState(0);
+    const handleBack = () => {
+      if(activePO === 0){
+        setActivePO(Positions.length - 1)
+        setActiveOU((prevActiveOU) => prevActiveOU -1)
       }
-    if(activePO === Positions.length - 1){
-      setActivePO(0);
-      setActiveOU((prevActiveOU) => prevActiveOU +1)
+      else{
+        setActivePO((prevActivePO) => prevActivePO -1)
+      }
+    };
+    const handleNext = () => {
+      if(activeOU === OrganizationalUnits.length -1 
+        && activePO === Positions.length -1){
+          setActiveOU((prevActiveOU) => prevActiveOU +1)
+          setActivePO((prevActivePO) => prevActivePO +1)
+          return
+        }
+      if(activePO === Positions.length - 1){
+        setActivePO(0);
+        setActiveOU((prevActiveOU) => prevActiveOU +1)
+      }
+      else{
+        setActivePO((prevActivePO) => prevActivePO +1)
+      }
+    };
+    const submit = () => {
+  
     }
-    else{
-      setActivePO((prevActivePO) => prevActivePO +1)
+    const reset = () => {
+  
     }
-  };
-
-  const submit = () => {
-
-  }
-  const reset = () => {
-
-  }
-
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeOU}>

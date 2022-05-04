@@ -98,7 +98,7 @@ contract Ballot{
             );
             for(uint256 i=0;i<name.length;i++){
                 require(
-                proposalOf[nominantAddress[i]].nominantAddress != address(0),
+                proposalOf[nominantAddress[i]].nominantAddress == address(0),
                 "One of these persons is already listed"
                 );
                 proposalOf[nominantAddress[i]].nominantAddress = nominantAddress[i];
