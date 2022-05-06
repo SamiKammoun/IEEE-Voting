@@ -2,7 +2,7 @@ import HorizontalLinearStepper from "./components/Stepper";
 import Connect from "./components/Connect";
 import { useState } from "react";
 import { EthereumContext } from "./EthereumContext";
-import { ProposalsContext } from "./ContractContext";
+
 function App() {
   const OrganizationalUnits = ['SB', 'CS', 'GRSS','WIE','RAS'];
   const Positions = [
@@ -13,7 +13,7 @@ function App() {
   return (
     <EthereumContext>
       <Connect />
-        <HorizontalLinearStepper />
+      <HorizontalLinearStepper />
     </EthereumContext>
     
   );

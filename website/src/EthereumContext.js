@@ -42,16 +42,17 @@ export function EthereumContext({children}){
         provider.getNetwork().then((result)=>{
             setChainName(result.name)
         })
-        if(chainName != "Kardiachain Testnet"){
+        if(chainName != "Polygon Testnet"){
             window.ethereum.request({
                 method: "wallet_addEthereumChain",
                 params: [{
-                    chainId: "0xF2",
-                    rpcUrls: ["https://dev.kardiachain.io/"],
-                    chainName: "Kardiachain Testnet",
+                    chainId: "0x13881",
+                    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+                    chainName: "Polygon Testnet",
+                    blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
                     nativeCurrency: {
-                        name: "KAI",
-                        symbol: "KAI",
+                        name: "MATIC",
+                        symbol: "MATIC",
                         decimals: 18
                     }
                 }]

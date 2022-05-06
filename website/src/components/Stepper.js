@@ -12,334 +12,442 @@ import { Stack } from '@mui/material';
 import { useState,useEffect } from 'react';
 import { useEthereumProvider,useEthereumChain } from '../EthereumContext';
 import { ethers } from 'ethers';
-import Countdown from 'react-countdown';
 import CircularProgress from '@mui/material/CircularProgress';
-const BallotAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+import Countdown from 'react-countdown';
+const BallotAddress = "0xFaA568A8261B2E9E9Ada038D08aC299b1bF0E833"
 const BallotABI = [
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "duration",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "voter_address",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "voter_name",
-          "type": "string"
-        }
-      ],
-      "name": "voterAdded",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string[]",
-          "name": "name",
-          "type": "string[]"
-        },
-        {
-          "internalType": "string[]",
-          "name": "image",
-          "type": "string[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "organizationalUnit",
-          "type": "uint8[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "position",
-          "type": "uint8[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "nominantAddress",
-          "type": "address[]"
-        }
-      ],
-      "name": "addBatchProposals",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "image",
-          "type": "string"
-        },
-        {
-          "internalType": "uint8",
-          "name": "organizationalUnit",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "position",
-          "type": "uint8"
-        },
-        {
-          "internalType": "address",
-          "name": "nominantAddress",
-          "type": "address"
-        }
-      ],
-      "name": "addProposal",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getProposals",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "nominant",
-          "type": "address"
-        }
-      ],
-      "name": "getResultsOf",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getVoters",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "voterAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "_name",
-          "type": "string"
-        }
-      ],
-      "name": "giveRightToVote",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "isModerator",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "proposalOf",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "nominantAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "image",
-          "type": "string"
-        },
-        {
-          "internalType": "uint8",
-          "name": "organizationalUnit",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "position",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "proposals",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "nominants",
-          "type": "address[]"
-        }
-      ],
-      "name": "vote",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "voteEnd",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "voteEnded",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "voter",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "voterAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "bool",
-          "name": "canVote",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "voters",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "voter_address",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "voter_name",
+        "type": "string"
+      }
+    ],
+    "name": "voterAdded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "name",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "image",
+        "type": "string[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "organizationalUnit",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "position",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "nominantAddress",
+        "type": "address[]"
+      }
+    ],
+    "name": "addBatchProposals",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "organizationalUnit",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "position",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "nominantAddress",
+        "type": "address"
+      }
+    ],
+    "name": "addProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getProposals",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "nominantAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "organizationalUnit",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "position",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "index",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Ballot.Proposal[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getResults",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nominant",
+        "type": "address"
+      }
+    ],
+    "name": "getResultsOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVoteEnd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVoters",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "voterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "giveRightToVote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isModerator",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "proposalOf",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "nominantAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "organizationalUnit",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "position",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "proposals",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "nominantAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "organizationalUnit",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "position",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "startVoting",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "nominants",
+        "type": "address[]"
+      }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voteEnd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voteEnded",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voteStarted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "voter",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "voterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "canVote",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "voters",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
 
 export default function HorizontalLinearStepper(props) {
   const OrganizationalUnits = ['SB', 'CS', 'GRSS','WIE','RAS'];
@@ -358,6 +466,7 @@ export default function HorizontalLinearStepper(props) {
   const [contract,setContract] = useState()
   const [voteEnded,setVoteEnded] = useState(false)
   const [results,setResults] = useState([])
+  const [voteEnd,setVoteEnd] = useState(0)
   const provider = useEthereumProvider()
   const chainName = useEthereumChain()
   useEffect(()=>{
@@ -367,12 +476,12 @@ export default function HorizontalLinearStepper(props) {
         setSigner(signer)
         const contract = new ethers.Contract(BallotAddress,BallotABI,signer)
         setContract(contract)
-        console.log("kk")
       }
   },[provider])
   useEffect(()=> {
     if(!voteEnded) return
     fetchResults()
+    
   },[allProposals])
   const addNominant= (nominantAddress)=> {
     const _chosenNominants = chosenNominants;
@@ -380,16 +489,10 @@ export default function HorizontalLinearStepper(props) {
   }
   const fetchProposals = async () => {
     const data = await contract.getProposals()
-    let _proposals = []
-    for(let i=0;i<data.length;i++){
-      let _proposal = await contract.proposalOf(data[i])
-      _proposals.push(_proposal)
-    }
-    setAllProposals(_proposals)
+    setAllProposals(data)
   }
   const getProposals = async (OU,PO) => {
     let tempProposals = allProposals.filter((proposal) => proposal.organizationalUnit == OU && proposal.position == PO)
-    console.log(tempProposals)
     setProposals(tempProposals)
   }
   const getVoteEnded = async () => {
@@ -397,22 +500,25 @@ export default function HorizontalLinearStepper(props) {
     setVoteEnded(tempEnded)
   }
   const fetchResults = async () => {
-    const _results = []
-    for(let i=0;i<allProposals.length;i++){
-      const result = await contract.getResultsOf(allProposals[i].nominantAddress)
-      _results.push(result.toNumber())
+    const tempresults = await contract.getResults()
+    let _results = []
+    for(let i=0;i<tempresults.length;i++){
+      _results.push(tempresults[i].toNumber())
     }
     setResults(_results)
+  }
+  const getVoteEnd = async  () => {
+    let _voteEnd = await contract.getVoteEnd();
+    _voteEnd = _voteEnd.toNumber()
+    setVoteEnd(_voteEnd*1000)
   }
   useEffect(()=> {
     fetchProposals()
     getVoteEnded()
-  },[contract,chainName,voteEnded])
+    getVoteEnd()
+  },[contract,chainName])
   useEffect(() => {
     getProposals(activeOU,activePO)
-    console.log(proposals)
-    console.log(chosenNominants)
-    console.log("results",results)
   }, [activeOU,activePO,allProposals])
   
   const handleBack = () => {
@@ -454,7 +560,6 @@ export default function HorizontalLinearStepper(props) {
     }
   };
   const submit = async () => {
-    console.log("submitting",chosenNominants)
     await contract.vote(chosenNominants)
   }
   const reset = () => {
@@ -463,7 +568,9 @@ export default function HorizontalLinearStepper(props) {
     setChosenNominants([])
   }
   return (
+    
     <Box sx={{ width: '100%' }}>
+      <Countdown date={voteEnd} />
       <Stepper activeStep={activeOU}>
         {OrganizationalUnits.map((label, index) => {
           return (
@@ -485,12 +592,12 @@ export default function HorizontalLinearStepper(props) {
       {activeOU === OrganizationalUnits.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
+            Thank you, dear IEEE member :D
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button variant='contained' onClick={submit}>Submit</Button>
-          </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+              <Box sx={{ flex: '1 1 auto' }} />
+              <Button disabled={chosenNominants.length == 0} variant='contained' onClick={submit}>Submit</Button>
+            </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Box sx={{ flex: '1 1 auto' }} />
             <Button  variant='contained' onClick={reset}>Reset</Button>
@@ -524,13 +631,17 @@ export default function HorizontalLinearStepper(props) {
                                 </Box>
                               ):
                               (
-                                <h1>{results[proposal.position]}</h1>
+                                <h1>{results[proposal.index]}</h1>
                               )
                                 
                               
                             ):
                             (
-                              <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
+                              (voteEnd != 0 && (
+                                <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
+                              )
+                                
+                              )
                             )
                           }
                             
@@ -544,7 +655,7 @@ export default function HorizontalLinearStepper(props) {
             </Grid>  
             </Container>)
           }
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 3 }}>
             <Button
               variant='contained'
               color="inherit"

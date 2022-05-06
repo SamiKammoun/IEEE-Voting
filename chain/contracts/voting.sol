@@ -20,19 +20,22 @@ contract Ballot{
         7: Training Manager
     */
     event voterAdded(address indexed voter_address,string indexed voter_name);
-    address[] public proposals;
+    Proposal[] public proposals;
     address[] public voters;
     mapping (address => Proposal) public proposalOf;
     mapping (address => Voter) public voter;
     mapping (address => bool) public isModerator; // determines if a person can actually add voters
     mapping (address => uint256) private voteCount;
-    uint256 public voteEnd;
+    uint256[] private results;
+    uint256 public voteEnd = 0;
+    bool public voteStarted = false;
     struct Proposal {
         address nominantAddress;
         string name;
         string image;
         uint8 organizationalUnit;
         uint8 position;
+        uint256 index;
     }
     struct Voter {
         //name is used to just verify if a person was added to detect fraud, we won't know a person's vote
@@ -41,18 +44,26 @@ contract Ballot{
         address voterAddress;
         bool canVote;
     }
-    constructor(uint256 duration) {
+    constructor() {
         isModerator[msg.sender] = true;
-        voteEnd = block.timestamp + duration;
+        
     }
     modifier voteOngoing() {
         require(
-            block.timestamp < voteEnd,
-            "vote has already ended"
+            block.timestamp < voteEnd && voteStarted,
+            "vote has already ended or didn't start yet"
         );
         _;
     }
-    function giveRightToVote(address voterAddress, string memory _name) external voteOngoing {
+    function startVoting(uint256 duration) public {
+        require(
+            isModerator[msg.sender],
+            "you can't start the vote if you are not a moderator"
+        );
+        voteEnd = block.timestamp + duration;
+        voteStarted = true;
+    }
+    function giveRightToVote(address voterAddress, string memory _name) external {
         require(
             isModerator[msg.sender],
             "Only moderators can give right to voters!"
@@ -60,6 +71,10 @@ contract Ballot{
         require(
             !voter[voterAddress].canVote,
             "The voter is already registered!"
+        );
+        require(
+                !voteStarted,
+                "vote already started"
         );
         voter[voterAddress].canVote = true;
         voter[voterAddress].name = _name;
@@ -70,7 +85,7 @@ contract Ballot{
         string memory image,
         uint8 organizationalUnit,
         uint8 position,
-        address nominantAddress) external voteOngoing {
+        address nominantAddress) external {
             require(
                 isModerator[msg.sender],
                 "Only moderators can add proposals"
@@ -79,22 +94,32 @@ contract Ballot{
                 proposalOf[nominantAddress].nominantAddress == address(0),
                 "This person is already listed"
             );
+            require(
+                !voteStarted,
+                "vote already started"
+            );
             proposalOf[nominantAddress].nominantAddress = nominantAddress;
             proposalOf[nominantAddress].name = name;
             proposalOf[nominantAddress].image = image;
             proposalOf[nominantAddress].organizationalUnit = organizationalUnit;
             proposalOf[nominantAddress].position = position;
-            proposals.push(nominantAddress);
+            proposalOf[nominantAddress].index = proposals.length;
+            proposals.push(proposalOf[nominantAddress]);
+            results.push(0);
     }
     function addBatchProposals(
         string[] memory name,
         string[] memory image,
         uint8[] memory organizationalUnit,
         uint8[] memory position,
-        address[] memory nominantAddress) external voteOngoing {
+        address[] memory nominantAddress) external {
             require(
                 isModerator[msg.sender],
                 "Only moderators can add proposals"
+            );
+            require(
+                !voteStarted,
+                "vote already started"
             );
             for(uint256 i=0;i<name.length;i++){
                 require(
@@ -106,7 +131,9 @@ contract Ballot{
                 proposalOf[nominantAddress[i]].image = image[i];
                 proposalOf[nominantAddress[i]].organizationalUnit = organizationalUnit[i];
                 proposalOf[nominantAddress[i]].position = position[i];
-                proposals.push(nominantAddress[i]);
+                proposalOf[nominantAddress[i]].index = proposals.length;
+                proposals.push(proposalOf[nominantAddress[i]]);
+                results.push(0);
             }
         }
     function vote(address[] memory nominants) external voteOngoing {
@@ -124,26 +151,29 @@ contract Ballot{
                 "This address has no active proposal"
             );
             voteCount[nominants[i]]++;
+            results[proposalOf[nominants[i]].index]++;
             voter[msg.sender].voted[proposalOf[nominants[i]].organizationalUnit][proposalOf[nominants[i]].position] = true;
         }
 
     }
+    
     function getResultsOf(address nominant) public view returns(uint256) {
-        require(
-            block.timestamp > voteEnd,
-            "Vote hasn't already ended"
-        );
         return voteCount[nominant];
+    }
+    function getResults() public view returns(uint256[] memory){
+        return results;
     }
     function getVoters() public view returns(address[] memory){
         return voters;
     }
-    function getProposals() public view returns(address[] memory){
+    function getProposals() public view returns(Proposal[] memory){
         return proposals;
     }
     function voteEnded() public view returns(bool){
-        return voteEnd < block.timestamp;
+        return voteEnd < block.timestamp && voteStarted;
     }
-
+    function getVoteEnd() public view returns(uint256){
+        return voteEnd;
+    }
 
 }
