@@ -23,7 +23,9 @@ export function EthereumContext({children}){
     const [provider,setProvider] = useState(null)
     useEffect(()=>{
         if(!window.ethereum) return
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const tempprovider = new ethers.providers.Web3Provider(window.ethereum);
+        setProvider(tempprovider)
+        if(provider == null) return
         provider.send("eth_requestAccounts", [])
         .then((accounts)=>{
             if(accounts.length>0) setCurrentAccount(accounts[0])
@@ -34,20 +36,19 @@ export function EthereumContext({children}){
             setCurrentAccount(accounts[0])
           });
         window.ethereum.on("chainChanged", (network) => {
-            provider = new ethers.providers.Web3Provider(window.ethereum)
-            setProvider(provider)
+            setChainName(network.name)
           });
         
         provider.getNetwork().then((result)=>{
             setChainName(result.name)
         })
-        if(chainName != "Hardhat"){
+        if(chainName != "Kardiachain Testnet"){
             window.ethereum.request({
                 method: "wallet_addEthereumChain",
                 params: [{
-                    chainId: "0x7A69",
-                    rpcUrls: ["https://127.0.0.1:8545/"],
-                    chainName: "Hardhat",
+                    chainId: "0xF2",
+                    rpcUrls: ["https://dev.kardiachain.io/"],
+                    chainName: "Kardiachain Testnet",
                     nativeCurrency: {
                         name: "KAI",
                         symbol: "KAI",
@@ -56,13 +57,14 @@ export function EthereumContext({children}){
                 }]
             })
         }
-    },[currentAccount,provider,chainName])
+    },[currentAccount,chainName])
     const onClickConnect = ()=> {
         if(!window.ethereum){
             console.log("please install MetaMask!")
             return
         }
         const provider = new ethers.providers.Web3Provider(window.ethereum)
+        window.ethereum.request({ method: 'eth_requestAccounts' });
         provider.send("eth_requestAccounts", [])
         .then((accounts)=>{
             if(accounts.length>0) setCurrentAccount(accounts[0])

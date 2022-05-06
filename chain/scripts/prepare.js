@@ -1,9 +1,12 @@
 async function main(){
   console.log("------ deploy to a **new** localhost ====");
+  const [moderator,account1,account2,account3,account4] = await ethers.getSigners();
+  console.log("account address ",moderator.address)
+  console.log("Balance :",(await moderator.getBalance()).toString())
   Ballot = await ethers.getContractFactory("Ballot");
-  contract = await Ballot.deploy(60);//60s before vote ends
-  console.log("contract address: ",contract.address);
-  [moderator,account1,account2,account3,account4] = await ethers.getSigners();
+  contract = await Ballot.deploy(600);//60s before vote ends
+  console.log("contract address: ",contract.address)
+  
   const characters = '0123456789ABCDEF'
   const nameCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const names = []
@@ -12,9 +15,10 @@ async function main(){
   const PO = []
   const addresses = []
   await contract.giveRightToVote(moderator.address,"Sami")
+  await contract.giveRightToVote(account1.address,"dummy")
   for(let organizationalUnit=0;organizationalUnit<5;organizationalUnit++){
     for(let position=0;position<8;position++){
-      for(let proposal=0;proposal<4;proposal++){
+      for(let proposal=0;proposal<1;proposal++){
         let address = "0x"
         let name = ""
         for(let i=0;i<40;i++){
@@ -37,6 +41,7 @@ async function main(){
     _proposals.push(_proposal)
   }
   console.log(_proposals)
+  contract.connect(account1).vote([_proposals[0].nominantAddress])
 }
 main().catch((error) => {
   console.error(error)

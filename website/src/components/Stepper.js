@@ -10,11 +10,11 @@ import { Grid } from '@mui/material';
 import { Avatar } from '@mui/material';
 import { Stack } from '@mui/material';
 import { useState,useEffect } from 'react';
-import { useEthereumProvider } from '../EthereumContext';
-import { useEthereumAccount } from '../EthereumContext';
+import { useEthereumProvider,useEthereumChain } from '../EthereumContext';
 import { ethers } from 'ethers';
-import Cards from './Cards';
-const BallotAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+import Countdown from 'react-countdown';
+import CircularProgress from '@mui/material/CircularProgress';
+const BallotAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
 const BallotABI = [
     {
       "inputs": [
@@ -354,9 +354,12 @@ export default function HorizontalLinearStepper(props) {
   const [proposals,setProposals] = useState([]);
   const [skipped,setSkipped] = useState(true)
   const [chosenNominants,setChosenNominants] = useState([])
-  const provider = useEthereumProvider()
   const [signer,setSigner] = useState()
   const [contract,setContract] = useState()
+  const [voteEnded,setVoteEnded] = useState(false)
+  const [results,setResults] = useState([])
+  const provider = useEthereumProvider()
+  const chainName = useEthereumChain()
   useEffect(()=>{
       let provider = new ethers.providers.Web3Provider(window.ethereum)
       if(provider != null){
@@ -367,6 +370,10 @@ export default function HorizontalLinearStepper(props) {
         console.log("kk")
       }
   },[provider])
+  useEffect(()=> {
+    if(!voteEnded) return
+    fetchResults()
+  },[allProposals])
   const addNominant= (nominantAddress)=> {
     const _chosenNominants = chosenNominants;
     _chosenNominants.push(nominantAddress)
@@ -384,13 +391,29 @@ export default function HorizontalLinearStepper(props) {
     let tempProposals = allProposals.filter((proposal) => proposal.organizationalUnit == OU && proposal.position == PO)
     console.log(tempProposals)
     setProposals(tempProposals)
-}
-  useEffect(() => {
+  }
+  const getVoteEnded = async () => {
+    const tempEnded = await contract.voteEnded()
+    setVoteEnded(tempEnded)
+  }
+  const fetchResults = async () => {
+    const _results = []
+    for(let i=0;i<allProposals.length;i++){
+      const result = await contract.getResultsOf(allProposals[i].nominantAddress)
+      _results.push(result.toNumber())
+    }
+    setResults(_results)
+  }
+  useEffect(()=> {
     fetchProposals()
+    getVoteEnded()
+  },[contract,chainName,voteEnded])
+  useEffect(() => {
     getProposals(activeOU,activePO)
     console.log(proposals)
     console.log(chosenNominants)
-  }, [activeOU,activePO,contract,allProposals])
+    console.log("results",results)
+  }, [activeOU,activePO,allProposals])
   
   const handleBack = () => {
     setActiveNominant("")
@@ -437,7 +460,7 @@ export default function HorizontalLinearStepper(props) {
   const reset = () => {
     setActivePO(0)
     setActiveOU(0)
-    chosenNominants = []
+    setChosenNominants([])
   }
   return (
     <Box sx={{ width: '100%' }}>
@@ -475,7 +498,13 @@ export default function HorizontalLinearStepper(props) {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Container>
+          {
+            proposals.length == 0 ? (
+              <Box sx={{ display: 'flex' }}>
+                <CircularProgress />
+              </Box>
+            ) :
+            (<Container>
             <Grid container spacing={{xs:2, md:3}} >
                 {proposals.map((proposal) => {
                     return(
@@ -487,14 +516,34 @@ export default function HorizontalLinearStepper(props) {
                             <Avatar sx={{width:200,height:200,border:5,marginTop:2,borderColor:"green"}}  src={proposal.image}></Avatar>
                             :<Avatar sx={{width:200,height:200,border:5,marginTop:2}}  src={proposal.image}></Avatar>
                           }
-                          <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
+                          {
+                            voteEnded ? (
+                              results.length == 0 ? (
+                                <Box sx={{ display: 'flex' }}>
+                                  <CircularProgress />
+                                </Box>
+                              ):
+                              (
+                                <h1>{results[proposal.position]}</h1>
+                              )
+                                
+                              
+                            ):
+                            (
+                              <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
+                            )
+                          }
+                            
+                          
+                          
                         </Stack> 
                       </Grid>
                     )
                 
                 })}
             </Grid>  
-        </Container>
+            </Container>)
+          }
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <Button
               variant='contained'
