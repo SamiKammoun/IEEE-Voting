@@ -571,7 +571,7 @@ export default function HorizontalLinearStepper(props) {
     
     <Box sx={{ width: '100%' }}>
       <Countdown date={voteEnd} />
-      <Stepper activeStep={activeOU}>
+      <Stepper activeStep={activeOU} sx={{margin:5}}>
         {OrganizationalUnits.map((label, index) => {
           return (
             <Step key={label} >
@@ -580,7 +580,7 @@ export default function HorizontalLinearStepper(props) {
           );
         })}
       </Stepper>
-      <Stepper activeStep={activePO}>
+      <Stepper activeStep={activePO} sx={{margin:5}}>
         {Positions.map((label, index) => {
           return (
             <Step key={label} >
