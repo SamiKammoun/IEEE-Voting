@@ -49,7 +49,7 @@ export function EthereumContext({children}){
                     chainId: "0x13881",
                     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
                     chainName: "Polygon Testnet",
-                    blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+                    blockExplorerUrls: ["https://polygon-mumbai.g.alchemy.com/v2/JCc5AElyDSIX0FdDABzhhDqRrPYJelUu"],
                     nativeCurrency: {
                         name: "MATIC",
                         symbol: "MATIC",
