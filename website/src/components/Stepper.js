@@ -14,7 +14,7 @@ import { useEthereumProvider,useEthereumChain } from '../EthereumContext';
 import { ethers } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
 import Countdown from 'react-countdown';
-const BallotAddress = "0x857F00F89186C2f244112d8a0cAbF229044A66f0"
+const BallotAddress = "0xa7eC94D32d071F2C6B6555960Ae942DAf0282484"
 const BallotABI = [
   {
     "inputs": [],
@@ -210,6 +210,30 @@ const BallotABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "voterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "i",
+        "type": "uint8"
+      }
+    ],
+    "name": "getVoterCanVoteOU",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getVoters",
     "outputs": [
@@ -233,6 +257,11 @@ const BallotABI = [
         "internalType": "string",
         "name": "_name",
         "type": "string"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "OUs",
+        "type": "uint8[]"
       }
     ],
     "name": "giveRightToVote",
@@ -438,11 +467,6 @@ const BallotABI = [
         "internalType": "address",
         "name": "voterAddress",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "canVote",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -487,6 +511,8 @@ export default function HorizontalLinearStepper(props) {
   const [voteEnded,setVoteEnded] = useState(false)
   const [results,setResults] = useState([])
   const [voteEnd,setVoteEnd] = useState(0)
+  const [canVote,setCanVote] = useState([])
+  const [currentAccount,setCurrentAccount] = useState("")
   const provider = useEthereumProvider()
   const chainName = useEthereumChain()
   useEffect(()=>{
@@ -497,12 +523,29 @@ export default function HorizontalLinearStepper(props) {
         const contract = new ethers.Contract(BallotAddress,BallotABI,signer)
         setContract(contract)
       }
+      provider.send("eth_requestAccounts", [])
+        .then((accounts)=>{
+            if(accounts.length>0) setCurrentAccount(accounts[0])
+        })
   },[provider])
   useEffect(()=> {
     if(!voteEnded) return
     fetchResults()
     
   },[allProposals])
+  useEffect(()=> {
+    setVotingPermissions()
+  },[currentAccount,contract])
+  const setVotingPermissions = async () => {
+    let tempCanVote = []
+    for(let i = 0; i<OrganizationalUnits.length;i++){
+      const canVotei = await contract.getVoterCanVoteOU(currentAccount,i)
+      tempCanVote.push(canVotei)
+    }
+    
+    console.log(tempCanVote)
+    setCanVote(tempCanVote);
+  }
   const addNominant= (nominantAddress)=> {
     const _chosenNominants = chosenNominants;
     _chosenNominants.push(nominantAddress)
@@ -657,7 +700,7 @@ export default function HorizontalLinearStepper(props) {
                               
                             ):
                             (
-                              (voteEnd != 0 && (
+                              (voteEnd != 0 && canVote[activeOU] &&(
                                 <Button variant='outlined' sx={{marginTop:2}} onClick={()=> {setActiveNominant(proposal.nominantAddress)}} >Vote</Button>
                               )
                                 
@@ -686,7 +729,7 @@ export default function HorizontalLinearStepper(props) {
               Back
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
-              <Button variant='contained' color="inherit" disabled={8*activeOU+activePO+1 != chosenNominants.length && !voteEnded && voteEnd != 0} onClick={handleNext} sx={{ mr: 1 }}>
+              <Button variant='contained' color="inherit" disabled={8*activeOU+activePO+1 != chosenNominants.length - 1 && activeNominant == "" && voteEnd != 0 && canVote[activeOU] && !voteEnded} onClick={handleNext} sx={{ mr: 1 }}>
                 Next
               </Button>
           </Box>

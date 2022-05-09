@@ -5,10 +5,10 @@ pragma solidity ^0.8.4;
 contract Ballot{
     /* Defining Organizational Units: 
         0: SB
-        1: GRSS
-        2: RAS
-        3: CS
-        4: WIE
+        1: CS
+        2: GRSS
+        3: WIE
+        4: RAS
        Defining positions:
         0: Chair
         1: Vice Chair
@@ -42,7 +42,7 @@ contract Ballot{
         string name;
         mapping(uint8 => mapping(uint8 => bool)) voted;//voted[0][0] returns true if the voter voted the chair position
         address voterAddress;
-        bool canVote;
+        mapping(uint8 => bool) canVote;
     }
     constructor() {
         isModerator[msg.sender] = true;
@@ -60,23 +60,25 @@ contract Ballot{
             isModerator[msg.sender],
             "you can't start the vote if you are not a moderator"
         );
+        require(
+            !voteStarted,
+            "Vote has already started!"
+        );
         voteEnd = block.timestamp + duration;
         voteStarted = true;
     }
-    function giveRightToVote(address voterAddress, string memory _name) public {
+    function giveRightToVote(address voterAddress, string memory _name,uint8[] memory OUs) public {
         require(
             isModerator[msg.sender],
             "Only moderators can give right to voters!"
         );
         require(
-            !voter[voterAddress].canVote,
-            "The voter is already registered!"
-        );
-        require(
                 !voteStarted,
                 "vote already started"
         );
-        voter[voterAddress].canVote = true;
+        for(uint8 i=0;i<OUs.length;i++){
+            voter[voterAddress].canVote[OUs[i]] = true;
+        }
         voter[voterAddress].name = _name;
         voters.push(voterAddress);
         emit voterAdded(voterAddress,_name);
@@ -137,11 +139,11 @@ contract Ballot{
             }
         }
     function vote(address[] memory nominants) external voteOngoing {
-        require(
-            voter[msg.sender].canVote,
-            "You are not allowed to vote"
-        );
         for(uint256 i=0;i<nominants.length;i++){
+            require(
+                voter[msg.sender].canVote[proposalOf[nominants[i]].organizationalUnit],
+                "You are not registered in this organizational unit"
+            );
             require(
                 !voter[msg.sender].voted[proposalOf[nominants[i]].organizationalUnit][proposalOf[nominants[i]].position],
                 "You have already voted this position"
@@ -190,5 +192,7 @@ contract Ballot{
     function getVoteEnd() public view returns(uint256){
         return voteEnd;
     }
-
+    function getVoterCanVoteOU(address voterAddress,uint8 i) public view returns(bool){
+        return voter[voterAddress].canVote[i];
+    }
 }

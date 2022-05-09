@@ -1,0 +1,36 @@
+[
+    {
+     "Timestamp": null,
+     "Name": null,
+     "Student_Branch": null,
+     "CS": null,
+     "GRSS": null,
+     "WIE": null,
+     "RAS": null,
+     "Ethereum_Address": null,
+     "Email Address": null
+    },
+    {
+     "Timestamp": null,
+     "Name": null,
+     "Student_Branch": null,
+     "CS": null,
+     "GRSS": null,
+     "WIE": null,
+     "RAS": null,
+     "Ethereum_Address": null,
+     "Email Address": null
+    },
+    {
+     "Timestamp": "5\/9\/2022 20:05:33",
+     "Name": "Sami Kammoun",
+     "Student_Branch": "yes",
+     "CS": "no",
+     "GRSS": "yes",
+     "WIE": "yes",
+     "RAS": "yes",
+     "Ethereum_Address": "0xA13Ceca159a40715aE2dE2415AEFa39d923540c6",
+     "Email Address": "samikammoun@ieee.org"
+    }
+   ]
+   

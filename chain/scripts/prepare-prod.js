@@ -6,9 +6,11 @@ async function main(){
     Ballot = await ethers.getContractFactory("Ballot");
     contract = await Ballot.deploy();
     console.log("contract address: ",contract.address)
-    
+    console.log("giving right to vote in SB and CS only")
+    await contract.giveRightToVote(moderator.address,"sami",[0,1])
     const characters = '0123456789ABCDEF'
-    let j=0;
+    // const filled = (await contract.getProposals()).length;
+    // const filledOU = filled 
     for(let organizationalUnit=0;organizationalUnit<5;organizationalUnit++){
       for(let position=0;position<8;position++){
         let abstainAddress = "0x"
@@ -47,8 +49,6 @@ async function main(){
     // }
     console.log("adding ","0x061156c8D5EDC7dE7f0e1999F703a12261322eCA"," As moderator")
     await contract.addModerator("0x061156c8D5EDC7dE7f0e1999F703a12261322eCA")
-    console.log("revoking Mod")
-    await contract.revokeMod()
     console.log("All set")
   }
   main().catch((error) => {

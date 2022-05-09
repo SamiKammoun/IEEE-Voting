@@ -1,0 +1,30 @@
+var responses = require('./IEEE elections proposals (Responses).json')
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function main(){
+    const [moderator] = await ethers.getSigners()
+    const Ballot = await ethers.getContractFactory("Ballot")
+    const contract = await Ballot.attach("0xa7eC94D32d071F2C6B6555960Ae942DAf0282484")//contract address
+    let i=0;
+    while(i<responses.length){
+        let proposal = responses[i]
+        if(proposal.Timestamp == null){
+            i++
+            continue
+        }
+        let getname=(await contract.proposalOf(proposal.address)).name
+        let b = getname.length != 0;
+        if(b){
+            i++
+            continue
+        }
+        console.log("adding",i)
+        await contract.addProposal(proposal.name,proposal['image url'],proposal['Organizational Unit'],proposal.Position,proposal.address)
+        sleep(30000)
+    }
+}
+main().catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
