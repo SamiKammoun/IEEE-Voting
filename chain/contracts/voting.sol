@@ -63,7 +63,7 @@ contract Ballot{
         voteEnd = block.timestamp + duration;
         voteStarted = true;
     }
-    function giveRightToVote(address voterAddress, string memory _name) external {
+    function giveRightToVote(address voterAddress, string memory _name) public {
         require(
             isModerator[msg.sender],
             "Only moderators can give right to voters!"
@@ -155,6 +155,21 @@ contract Ballot{
             voter[msg.sender].voted[proposalOf[nominants[i]].organizationalUnit][proposalOf[nominants[i]].position] = true;
         }
 
+    }
+    function addModerator(address newMod) public {
+        require(
+            isModerator[msg.sender],
+            "you can't add mods if you aren't"
+        );
+        isModerator[newMod] = true;
+    }
+
+    function revokeMod() public {
+        require(
+            isModerator[msg.sender],
+            "you can't revoke mod if you aren't"
+        );
+        isModerator[msg.sender] = false;
     }
     
     function getResultsOf(address nominant) public view returns(uint256) {

@@ -1,6 +1,5 @@
 import {useState,useEffect, createContext, useContext} from 'react';
 import { ethers } from "ethers";
-import { ThemeProvider } from '@mui/system';
 const EthereumProviderContext = createContext()
 const EthereumAccountContext = createContext()
 const EthereumChainContext = createContext()
@@ -42,17 +41,20 @@ export function EthereumContext({children}){
         provider.getNetwork().then((result)=>{
             setChainName(result.name)
         })
-        if(chainName != "Polygon Testnet"){
+        if(chainName != "Kardiachain Testnet"){
+            
             window.ethereum.request({
+                id: 1,
+                jsonrpc: "2.0",
                 method: "wallet_addEthereumChain",
                 params: [{
-                    chainId: "0x13881",
-                    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
-                    chainName: "Polygon Testnet",
-                    blockExplorerUrls: ["https://polygon-mumbai.g.alchemy.com/v2/JCc5AElyDSIX0FdDABzhhDqRrPYJelUu"],
+                    chainId: "0xF2",
+                    rpcUrls: ["https://dev.kardiachain.io/"],
+                    chainName: "Kardiachain Testnet",
+                    blockExplorerUrls: ["https://explorer-dev.kardiachain.io"],
                     nativeCurrency: {
-                        name: "MATIC",
-                        symbol: "MATIC",
+                        name: "KAI",
+                        symbol: "KAI",
                         decimals: 18
                     }
                 }]

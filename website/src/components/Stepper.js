@@ -14,7 +14,7 @@ import { useEthereumProvider,useEthereumChain } from '../EthereumContext';
 import { ethers } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
 import Countdown from 'react-countdown';
-const BallotAddress = "0xFaA568A8261B2E9E9Ada038D08aC299b1bF0E833"
+const BallotAddress = "0x857F00F89186C2f244112d8a0cAbF229044A66f0"
 const BallotABI = [
   {
     "inputs": [],
@@ -69,6 +69,19 @@ const BallotABI = [
       }
     ],
     "name": "addBatchProposals",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newMod",
+        "type": "address"
+      }
+    ],
+    "name": "addModerator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -335,6 +348,13 @@ const BallotABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "revokeMod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -592,7 +612,7 @@ export default function HorizontalLinearStepper(props) {
       {activeOU === OrganizationalUnits.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
-            Thank you, dear IEEE member :D
+            Thank you, please submit your vote!
           </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
@@ -612,7 +632,7 @@ export default function HorizontalLinearStepper(props) {
               </Box>
             ) :
             (<Container>
-            <Grid container spacing={{xs:2, md:3}} >
+            <Grid container spacing={{xs:2, md:3}}  alignItems="center" justifyContent="center">
                 {proposals.map((proposal) => {
                     return(
                       <Grid item xs={12} sm={6} md={3} >
@@ -621,7 +641,7 @@ export default function HorizontalLinearStepper(props) {
                           {
                             proposal.nominantAddress == activeNominant  ? 
                             <Avatar sx={{width:200,height:200,border:5,marginTop:2,borderColor:"green"}}  src={proposal.image}></Avatar>
-                            :<Avatar sx={{width:200,height:200,border:5,marginTop:2}}  src={proposal.image}></Avatar>
+                            :<Avatar sx={{width:200,height:200,marginTop:2}}  src={proposal.image}></Avatar>
                           }
                           {
                             voteEnded ? (
@@ -666,7 +686,7 @@ export default function HorizontalLinearStepper(props) {
               Back
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
-              <Button variant='contained' color="inherit" onClick={handleNext} sx={{ mr: 1 }}>
+              <Button variant='contained' color="inherit" disabled={8*activeOU+activePO+1 != chosenNominants.length && !voteEnded && voteEnd != 0} onClick={handleNext} sx={{ mr: 1 }}>
                 Next
               </Button>
           </Box>
